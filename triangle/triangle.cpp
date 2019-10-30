@@ -57,12 +57,16 @@ std::vector<VulkanExample::triangle_to_draw> make_vertices(std::vector<polygon_t
 
 int main(){
 
-	std::vector<polygon_t<float>> tris = read_triangles();
-	std::vector<bool> intersected = get_intersected(tris);
+	std::vector<polygon_t<float>> tris = read_triangles(); //loading triangles from stdin
 
-	std::vector<VulkanExample::triangle_to_draw> triangles = make_vertices(tris, intersected);
+	std::vector<bool> intersected = get_intersected(tris); //getting the intersected 
 
+	std::vector<VulkanExample::triangle_to_draw> triangles = make_vertices(tris, intersected); //converting from polygon_t to triangle_to_draw
+	
+	if(triangles.size() == 0){
+		std::cout << "No triangles got, stopped!" << std::endl;
+		return 0;
+	}
 
-	draw_triangles(triangles);
-	return 0;
+	return draw_triangles(triangles); //drawing	
 }

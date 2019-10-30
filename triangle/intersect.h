@@ -8,7 +8,7 @@
 using namespace lingeo3D;
 
 #define WITH_SORTED
-//#define TRI_LOGGING
+#define TRI_LOGGING
 
 template<typename T>
 class sorted_cubes;
@@ -203,8 +203,8 @@ std::vector<bool> get_intersected(std::vector<polygon_t<float>> triangles){
 #ifdef TRI_LOGGING
 
 		if(i >= check_point){
-			std::cout << (int)((float)check_point/(float)tri_n * 100.0) << "% done..." << std::endl;
-			check_point += tri_n * check_step;
+			std::cout << (int)((float)check_point/(float)triangles.size() * 100.0) << "% done..." << std::endl;
+			check_point += triangles.size() * check_step;
 		}
 
 #endif

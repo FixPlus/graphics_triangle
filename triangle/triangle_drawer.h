@@ -1,15 +1,18 @@
 /*
+	
+	Multiple triangle drawing 
+
+	THIS IS A MODIFY OF EXISTING CODE:
+
+/*
 * Vulkan Example - Basic indexed triangle rendering
 *
-* Note:
-*	This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
-*	Contrary to the other examples, this one won't make use of helper functions or initializers
-*	Except in a few cases (swap chain setup e.g.)
 *
 * Copyright (C) 2016-2017 by Sascha Willems - www.saschawillems.de
 *
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 */
+
+// ALL MODIFICATIONS ARE NOTED WITH "MODIFIED: comment"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,19 +43,20 @@ class VulkanExample : public VulkanExampleBase
 public:
 
 	// Vertex layout used in this example
-
+	//MODIFIED: added normal vector to calculate brightness of vertex in shader
 	struct Vertex {
 		float position[3];
 		float color[3];
 		float normal[3];
 	};
 
+	//MODIFIED: used to contain the triangles
+
 	struct triangle_to_draw
 	{
 		Vertex vertices[3];
 	};		
 
-	float tri_rotation = 0.0;
 
 
 	// Vertex buffer and attributes
@@ -127,8 +131,11 @@ public:
 
 	VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION)
 	{
-		zoom = -2.5f;
-		title = "Vulkan Example - Basic indexed triangle";
+		//zoom = -2.5f;
+
+		//MODIFIED: title
+
+		title = "Intersected triangles";
 		// Values not set here are initialized in the base class constructor
 	}
 
@@ -347,6 +354,7 @@ public:
 //		rotation.y += 0.2;
 //		tri_rotation += 0.2;
 //		updateUniformBuffers();
+
 		// Get next image in the swap chain (back/front buffer)
 		VK_CHECK_RESULT(swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer));
 
@@ -378,7 +386,7 @@ public:
 
 	// Prepare vertex and index buffers for an indexed triangle
 	// Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-	void prepareVertices(bool useStagingBuffers, std::vector<triangle_to_draw> triangles)
+	void prepareVertices(bool useStagingBuffers, std::vector<triangle_to_draw> triangles) //MODIFIED: now it takes a triangle data to prepare vertices
 	{
 		// A note on memory management in Vulkan in general:
 		//	This is a very complex topic and while it's fine for an example application to to small individual memory allocations that is not
@@ -990,7 +998,7 @@ public:
 		// Set pipeline stage for this shader
 		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
 		// Load binary SPIR-V shader
-		shaderStages[0].module = loadSPIRVShader("shaders/triangle.vert.spv");
+		shaderStages[0].module = loadSPIRVShader("shaders/triangle.vert.spv"); //MODIFIED: changed the location
 		// Main entry point for the shader
 		shaderStages[0].pName = "main";
 		assert(shaderStages[0].module != VK_NULL_HANDLE);
@@ -1000,7 +1008,7 @@ public:
 		// Set pipeline stage for this shader
 		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 		// Load binary SPIR-V shader
-		shaderStages[1].module = loadSPIRVShader("shaders/triangle.frag.spv");
+		shaderStages[1].module = loadSPIRVShader("shaders/triangle.frag.spv"); //MODIFIED: changed the location
 		// Main entry point for the shader
 		shaderStages[1].pName = "main";
 		assert(shaderStages[1].module != VK_NULL_HANDLE);
@@ -1070,7 +1078,8 @@ public:
 		updateUniformBuffers();
 	}
 
-	void updateUniformBuffers()
+
+	void updateUniformBuffers() //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 	{
 		// Update matrices
 		uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
@@ -1083,7 +1092,7 @@ public:
 
 
 		uboVS.modelMatrix = glm::mat4(1.0f);
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(tri_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+//		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(tri_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
 //		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 //		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -1117,6 +1126,7 @@ public:
 		draw();
 	}
 
+//MODIFIED: using mouse to control camera
 	
 	virtual void mouseMoved(double x, double y, bool &handled){
 //		std::cout << mousePos.x << " " << x << std::endl;
@@ -1154,38 +1164,9 @@ public:
 // OS specific macros for the example main entry points
 // Most of the code base is shared for the different supported operating systems, but stuff like message handling diffes
 
-#if defined(_DIRECT2DISPLAY)
+//MODIFIED: now it takes a triangles to draw, deleted all non-xcb WSI and non-linux platforms
 
-// Linux entry point with direct to display wsi
-// Direct to Displays (D2D) is used on embedded platforms
-VulkanExample *vulkanExample;
-static void handleEvent()
-{
-}
-int draw_triangles(std::vector<VulkanExample::triangle_to_draw> triangles)
-{
-	for (size_t i = 0; i < argc; i++) { VulkanExample::args.push_back(argv[i]); };
-	vulkanExample = new VulkanExample();
-	vulkanExample->initVulkan();
-	vulkanExample->prepare(triangles);
-	vulkanExample->renderLoop();
-	delete(vulkanExample);
-	return 0;
-}
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-VulkanExample *vulkanExample;
-int draw_triangles(std::vector<VulkanExample::triangle_to_draw> triangles)
-{
-	for (size_t i = 0; i < argc; i++) { VulkanExample::args.push_back(argv[i]); };
-	vulkanExample = new VulkanExample();
-	vulkanExample->initVulkan();
-	vulkanExample->setupWindow();
-	vulkanExample->prepare(triangles);
-	vulkanExample->renderLoop();
-	delete(vulkanExample);
-	return 0;
-}
-#elif defined(__linux__)
+#if defined(__linux__)
 
 // Linux entry point
 VulkanExample *vulkanExample;
@@ -1201,17 +1182,15 @@ int draw_triangles(std::vector<VulkanExample::triangle_to_draw> triangles)
 {
 
 	vulkanExample = new VulkanExample();
-    vulkanExample->settings.fullscreen = true;
-	vulkanExample->width = 1920;
-	vulkanExample->height = 1080;
+ //   vulkanExample->settings.fullscreen = true;
+//	vulkanExample->width = 1920;
+//	vulkanExample->height = 1080;
 	vulkanExample->rotation.x = 90;
 	vulkanExample->rotation.y = -540;
 	vulkanExample->initVulkan();
 	vulkanExample->setupWindow();
 	vulkanExample->prepare(triangles);
-	std::cout << vulkanExample->rotation.x << ":" << vulkanExample->rotation.y << ":" <<vulkanExample->rotation.z<< std::endl;
 	vulkanExample->renderLoop();
-	std::cout << vulkanExample->rotation.x << ":" << vulkanExample->rotation.y << ":" <<vulkanExample->rotation.z<< std::endl;
 	delete(vulkanExample);
 	return 0;
 }
