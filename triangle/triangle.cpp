@@ -1,6 +1,7 @@
-#include "triangle_drawer.h"
+#include "drawer.h"
 #include "lingeo3D.h"
 #include "intersect.h"
+#include <cstdlib>
 
 using namespace lingeo3D;
 std::vector<polygon_t<float>> read_triangles(){
@@ -54,19 +55,73 @@ std::vector<VulkanExample::triangle_to_draw> make_vertices(std::vector<polygon_t
 	}
 }
 
+Drawer* drawer;
+std::vector<VulkanExample::triangle_to_draw> triangles;
 
-int main(){
+void myHandleEvent(const xcb_generic_event_t *event){
+	static int counter = 1;
+	switch(event->response_type & 0x7f){
+		case XCB_KEY_PRESS: //Keyboard input
+		{
+			const xcb_key_release_event_t *keyEvent = (const xcb_key_release_event_t *)event;
+
+		switch (keyEvent->detail)
+			{
+				case KEY_W:
+					break;
+				case KEY_S:
+					break;
+				case KEY_A:
+					break;
+				case KEY_D:
+					break;
+				case KEY_P:
+					counter = counter * 2;
+					if(counter > triangles.size())
+						counter = 1;
+					drawer->set(triangles.begin(), triangles.begin() + (unsigned int)(triangles.size() / counter));
+					break;
+				case KEY_F1:
+					break;				
+			}
+		}
+		break;
+	}	
+
+}
+
+
+int main(int argc, char** argv){
+	
 
 	std::vector<polygon_t<float>> tris = read_triangles(); //loading triangles from stdin
 
 	std::vector<bool> intersected = get_intersected(tris); //getting the intersected 
 
-	std::vector<VulkanExample::triangle_to_draw> triangles = make_vertices(tris, intersected); //converting from polygon_t to triangle_to_draw
+	triangles = make_vertices(tris, intersected); //converting from polygon_t to triangle_to_draw
 	
 	if(triangles.size() == 0){
 		std::cout << "No triangles got, stopped!" << std::endl;
 		return 0;
 	}
 
-	return draw_triangles(triangles); //drawing	
+	std::string fullscreen_msg = "-fullscreen";
+	
+	enum WindowStyle style = WS_WINDOWED;
+
+	for(int i = 1; i < argc; i++){
+		std::string arg = argv[i];
+		if(arg == fullscreen_msg)
+			style = WS_FULLSCREEN;
+	}
+
+	drawer = new Drawer(style, &myHandleEvent, "Intersected triangles");
+
+	drawer->set(triangles);
+
+	drawer->render();
+	
+	delete drawer;
+
+	return 0; 
 }

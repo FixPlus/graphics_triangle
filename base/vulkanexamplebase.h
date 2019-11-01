@@ -384,7 +384,9 @@ public:
 	VkPipelineShaderStageCreateInfo loadShader(std::string fileName, VkShaderStageFlagBits stage);
 	
 	// Start the main render loop
+	void preRenderLoop();
 	void renderLoop();
+	void postRenderLoop();
 
 	// Render one frame of a render loop on platforms that sync rendering
 	void renderFrame();

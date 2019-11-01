@@ -12,6 +12,8 @@ layout (binding = 0) uniform UBO
 } ubo;
 
 layout (location = 0) out vec3 outColor;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec3 outTrace;
 
 out gl_PerVertex 
 {
@@ -33,6 +35,9 @@ void main()
 
 	float enlighted = max(abs(dot(normal, norm_trace)) * (200.0 - length(trace)) / 200.00, 0.0);
 
+	outNormal = normal;
+	outTrace = trace;
 
-	outColor = inColor * (enlighted * 0.6 + 0.2);
+//	outColor = inColor * (enlighted * 0.7 + 0.1);
+	outColor = inColor;
 }
