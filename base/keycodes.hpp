@@ -110,6 +110,7 @@
 #define KEY_SPACE 0x41
 #define KEY_KPADD 0x56
 #define KEY_KPSUB 0x52
+#define KEY_R 0x1B
 #define KEY_B 0x38
 #define KEY_F 0x29
 #define KEY_L 0x2E

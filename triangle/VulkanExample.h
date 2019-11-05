@@ -46,9 +46,9 @@ public:
 	// Vertex layout used in this example
 	//MODIFIED: added normal vector to calculate brightness of vertex in shader
 	struct Vertex {
-		float position[3];
-		float color[3];
-		float normal[3];
+		glm::vec3 position;
+		glm::vec3 color;
+		glm::vec3 normal;
 	};
 
 	//MODIFIED: used to contain the triangles
@@ -97,6 +97,11 @@ public:
 		glm::mat4 modelMatrix;
 		glm::mat4 viewMatrix;
 	} uboVS;
+
+	std::vector<Vertex> localVertices;
+	uint32_t localVerticesSize;
+	std::vector<uint32_t> localIndices;
+	uint32_t localIndicesSize;
 
 	// The pipeline layout is used by a pipline to access the descriptor sets 
 	// It defines interface (without binding any actual data) between the shader stages used by the pipeline and the shader resources
@@ -160,7 +165,7 @@ public:
 
 	// Prepare vertex and index buffers for an indexed triangle
 	// Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-	void prepareVertices(bool useStagingBuffers, std::vector<triangle_to_draw> const &triangles);
+	void prepareVertices(bool s, int n_verts);
 
 	void setupDescriptorPool();
 
@@ -195,7 +200,7 @@ public:
 
 	void updateUniformBuffers(); //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 
-	void prepare(std::vector<triangle_to_draw> const &triangles);
+	void prepare(int n_verts);
 
 	virtual void render();	
 

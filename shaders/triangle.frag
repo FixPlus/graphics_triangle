@@ -9,6 +9,6 @@ layout (location = 0) out vec4 outFragColor;
 void main() 
 {
   vec3 norm_trace = normalize(inTrace);
-  float enlighted = max(abs(dot(inNormal, norm_trace)) * (200.0 - length(inTrace)) / 200.00, 0.0);
+  float enlighted = max(abs(dot(inNormal, norm_trace)) * (300.0 - length(inTrace)) / 300.00, 0.0);
   outFragColor = vec4(inColor * (enlighted * 0.7 + 0.1), 1.0);
 }

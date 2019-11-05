@@ -14,7 +14,7 @@ namespace lingeo3D{
 	template<typename T>
 	struct point_t {      // (x , y, z)
 		T x_, y_, z_;
-		point_t(T x = NAN, T y = NAN, T z = NAN);
+		explicit point_t(T x = NAN, T y = NAN, T z = NAN);
 		point_t(const point_t<T> &point);
 		
 		void print() const;		// prints on screen: "(x ; y)"
@@ -85,7 +85,7 @@ template<typename T>
 
 	public:
 
-		plane_t(T a = 0.0, T b = 0.0, T c = 1.0, T d = 0.0);
+		explicit plane_t(T a = 0.0, T b = 0.0, T c = 1.0, T d = 0.0);
 
 		plane_t(point_t<T> p1, point_t<T> p2, point_t<T> p3);
 
@@ -109,7 +109,7 @@ template<typename T>
 		std::vector<point_t<T>> vertices;
 
 		polygon_t();                                  // empty polygon
-		polygon_t(std::vector<point_t<T>> vertices);     // constructing by vector<point_t> array
+		explicit polygon_t(std::vector<point_t<T>> vertices);     // constructing by vector<point_t> array
 
 		T square() const;                               // returns the square of polygon
 		void print() const;                                 // prints: "Polygon is nangle: (x1, y1) (x2, y2) ... (xn, yn)"
@@ -226,8 +226,8 @@ T line_t<T>::angle(point_t<T> const &pnt1, point_t<T> const &pnt2) const{
 				(((vect_prod.y_ > 0) == (dir_.y_ > 0)) && std::abs(dir_.y_) > flt_tolerance) ||
 				(((vect_prod.z_ > 0) == (dir_.z_ > 0)) && std::abs(dir_.z_) > flt_tolerance)   ) ? 1 : -1;
 
-	T mod1 = norm1.distance({0.0, 0.0, 0.0});
-	T mod2 = norm2.distance({0.0, 0.0, 0.0});
+	T mod1 = norm1.distance(point_t<T>{0.0, 0.0, 0.0});
+	T mod2 = norm2.distance(point_t<T>{0.0, 0.0, 0.0});
 	T scalar = norm1.scalar_prod(norm2);
 	T angle = std::acos(scalar/(mod1 * mod2));
 	if(sign < 0)
@@ -278,7 +278,7 @@ point_t<T> plane_t<T>::intersection(line_t<T> const &line) const{
 
 template<typename T>
 point_t<T> plane_t<T>::get_normal() const{
-	return {a_, b_, c_};
+	return point_t<T>{a_, b_, c_};
 }
 
 template<typename T>

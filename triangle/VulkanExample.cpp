@@ -240,7 +240,7 @@ void VulkanExample::draw()
 //		rotation.x += 0.2;
 //		rotation.y += 0.2;
 //		tri_rotation += 0.2;
-	updateUniformBuffers();
+//	updateUniformBuffers();
 
 	// Get next image in the swap chain (back/front buffer)
 	VK_CHECK_RESULT(swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer));
@@ -268,41 +268,41 @@ void VulkanExample::draw()
 	// Present the current buffer to the swap chain
 	// Pass the semaphore signaled by the command buffer submission from the submit info as the wait semaphore for swap chain presentation
 	// This ensures that the image is not presented to the windowing system until all commands have been submitted
-	/*VK_CHECK_RESULT(*/swapChain.queuePresent(queue, currentBuffer, renderCompleteSemaphore);//);
+	/*VK_CHECK_RESULT(*/swapChain.queuePresent(queue, currentBuffer, renderCompleteSemaphore);//); //macros caused assertion fail on window resize
 }
 
 // Prepare vertex and index buffers for an indexed triangle
 // Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-void VulkanExample::prepareVertices(bool useStagingBuffers, std::vector<triangle_to_draw> const &triangles) //MODIFIED: now it takes a triangle data to prepare vertices
+void VulkanExample::prepareVertices(bool useStagingBuffers, int n_verts) //MODIFIED: now it takes a triangle data to prepare vertices
 {
 	// A note on memory management in Vulkan in general:
 	//	This is a very complex topic and while it's fine for an example application to to small individual memory allocations that is not
 	//	what should be done a real-world application, where you should allocate large chunkgs of memory at once isntead.
 
 	// Setup vertices
-	
-	std::vector<Vertex> vertexBuffer;
-	std::vector<uint32_t> indexBuffer;
 
-	for(int i = 0, size = triangles.size(); i < size; i++){
-		for(int j = 0; j < 3; j++){
-			Vertex vert = triangles[i].vertices[j];
-			vertexBuffer.push_back(vert);
-			indexBuffer.push_back(i * 3 + j);
-		}
-	}
+	localVertices.clear();
+	localIndices.clear();
 
-	uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
+	Vertex example = Vertex{};
+	localVertices.resize(n_verts, example);
 
-	indices.count = static_cast<uint32_t>(indexBuffer.size());
-	uint32_t indexBufferSize = indices.count * sizeof(uint32_t);
+	for(int i = 0; i < n_verts; i++)
+		localIndices.push_back(i);
+
+
+	localVerticesSize = static_cast<uint32_t>(localVertices.size()) * sizeof(Vertex);
+
+	indices.count = static_cast<uint32_t>(localIndices.size());
+	localIndicesSize = indices.count * sizeof(uint32_t);
 
 	VkMemoryAllocateInfo memAlloc = {};
 	memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	VkMemoryRequirements memReqs;
 
-	void *data;
 
+	void *data;
+/*
 	if (useStagingBuffers)
 	{
 		// Static data like vertex and index buffer should be stored on the device memory 
@@ -406,13 +406,14 @@ void VulkanExample::prepareVertices(bool useStagingBuffers, std::vector<triangle
 	}
 	else
 	{
+		*/
 		// Don't use staging
 		// Create host-visible buffers only and use these for rendering. This is not advised and will usually result in lower rendering performance
 
 		// Vertex buffer
 		VkBufferCreateInfo vertexBufferInfo = {};
 		vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		vertexBufferInfo.size = vertexBufferSize;
+		vertexBufferInfo.size = localVerticesSize;
 		vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
 		// Copy vertex data to a buffer visible to the host
@@ -423,14 +424,14 @@ void VulkanExample::prepareVertices(bool useStagingBuffers, std::vector<triangle
 		memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		VK_CHECK_RESULT(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
 		VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
-		memcpy(data, vertexBuffer.data(), vertexBufferSize);
+		memcpy(data, localVertices.data(), localVerticesSize);
 		vkUnmapMemory(device, vertices.memory);
 		VK_CHECK_RESULT(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
 
 		// Index buffer
 		VkBufferCreateInfo indexbufferInfo = {};
 		indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		indexbufferInfo.size = indexBufferSize;
+		indexbufferInfo.size = localIndicesSize;
 		indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
 		// Copy index data to a buffer visible to the host
@@ -439,11 +440,11 @@ void VulkanExample::prepareVertices(bool useStagingBuffers, std::vector<triangle
 		memAlloc.allocationSize = memReqs.size;
 		memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		VK_CHECK_RESULT(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
-		VK_CHECK_RESULT(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
-		memcpy(data, indexBuffer.data(), indexBufferSize);
+		VK_CHECK_RESULT(vkMapMemory(device, indices.memory, 0, localIndicesSize, 0, &data));
+		memcpy(data, localIndices.data(), localIndicesSize);
 		vkUnmapMemory(device, indices.memory);
 		VK_CHECK_RESULT(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
-	}
+	//}
 }
 
 void VulkanExample::setupDescriptorPool()
@@ -969,7 +970,8 @@ void VulkanExample::prepareUniformBuffers()
 void VulkanExample::updateUniformBuffers() //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 {
 	// Update matrices
-	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
+	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 1000.0f);
+//	uboVS.projectionMatrix = glm::ortho(0.0f, 100.f, 0.0f, 100.f, -256.0f, 256.0f);
 
 //		uboVS.viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
 	uboVS.viewMatrix = glm::rotate(glm::mat4(1.0f) , glm::radians( - rotation.x * 0.25f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -990,13 +992,20 @@ void VulkanExample::updateUniformBuffers() //MODIFIED: changed the order of matr
 	// Unmap after data has been copied
 	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
 	vkUnmapMemory(device, uniformBufferVS.memory);
+
+	VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, sizeof(localVerticesSize), 0, (void **)&pData));
+	memcpy(pData, localVertices.data(), localVerticesSize);
+	// Unmap after data has been copied
+	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
+	vkUnmapMemory(device, vertices.memory);
+
 }
 
-void VulkanExample::prepare(std::vector<triangle_to_draw> const &triangles)
+void VulkanExample::prepare(int n_verts)
 {
 	VulkanExampleBase::prepare();
 	prepareSynchronizationPrimitives();
-	prepareVertices(USE_STAGING, triangles);
+	prepareVertices(false, n_verts);
 	prepareUniformBuffers();
 	setupDescriptorSetLayout();
 	preparePipelines();

@@ -33,7 +33,7 @@ void main()
 
 	// As closer the normal vector is to trace and as closer to light_source is vert as brighter it will be
 
-	float enlighted = max(abs(dot(normal, norm_trace)) * (200.0 - length(trace)) / 200.00, 0.0);
+//	float enlighted = max(abs(dot(normal, norm_trace))  * (1000.0 - length(trace)) / 1000.00 , 0.0);
 
 	outNormal = normal;
 	outTrace = trace;

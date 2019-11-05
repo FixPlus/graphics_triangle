@@ -1,5 +1,6 @@
 #pragma once
 #include "VulkanExample.h"
+#include "DrawableTriangle.h"
 
 // Drawer is used to operate with VulkanExample class by creating, initializing, preparing, rendering, handling events and deleting
 
@@ -15,21 +16,35 @@ class Drawer
 	VulkanExample* APIManager = nullptr;    //Contains VulkanExample instance by address 
 	CHEFR customHandleEvent;                //used to have a possibility to handle events out of Drawer class
 
-	void initManager(enum WindowStyle style, std::string windowName, uint32_t width, uint32_t height, int32_t init_camera_rot_x, int32_t init_camera_rot_y); //inits Vulkan
-
 public:
 
-	Drawer(enum WindowStyle style = WS_WINDOWED, CHEFR che = nullptr, std::string windowName = "Window", uint32_t width = 1240, uint32_t height = 780, int32_t init_camera_rot_x = 90, int32_t init_camera_rot_y = -540);
+	explicit Drawer(enum WindowStyle style = WS_WINDOWED, CHEFR che = nullptr, std::string windowName = "Window", uint32_t width = 1240, uint32_t height = 780, int32_t init_camera_rot_x = 90, int32_t init_camera_rot_y = -540);
+
+	Drawer(Drawer const &rhs) = delete;
 
 	~Drawer(); //deletes APIManager created by initManager
 
-	void set(std::vector<VulkanExample::triangle_to_draw> const &triangles); //prepares a new set of vertices using vector
+	void draw() const;   //copies the vertices info to GPU memory and renders frame
 
-	void set(std::vector<VulkanExample::triangle_to_draw>::const_iterator it1, std::vector<VulkanExample::triangle_to_draw>::const_iterator it2); //prepares a new set of vertices using iterators
+	template<typename It> //any random access iterator
+	void connect(It begin, It end) const{
+		APIManager->prepared = false;
+		APIManager->prepare((end - begin) * 3);
 
-	void render();   //starts rendering loop
+		auto vertIt = APIManager->localVertices.begin();
 
-	void handleEvent(const xcb_generic_event_t *event); //handles the xcb window events
+		for(; begin < end; begin++, vertIt += 3)
+			begin[0].setIt(vertIt);
+	} //connects the triangles iterators to localVertices buffer
+
+	bool shouldQuit() const { return APIManager->quit;}; //return the APIManager state quit
+
+	void handleEvents() const; //handles the xcb window events
+
+	void handleEvent(const xcb_generic_event_t *event) const; //handles current xcb event
+
+	Drawer& operator=(Drawer const &rhs) = delete;
+
 
 };
 

@@ -313,15 +313,7 @@ void VulkanExampleBase::renderLoop()
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
 
-		int timeToSleepMicroSecs = 1000000u/60 - tDiff * 1000;
-		if(timeToSleepMicroSecs < 0)
-			timeToSleepMicroSecs = 0;
-
-		usleep((unsigned int)timeToSleepMicroSecs);
 		
-		tEnd = std::chrono::high_resolution_clock::now();
-		tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-
 		frameTimer = tDiff / 1000.0f;
 		camera.update(frameTimer);
 		if (camera.moving())
