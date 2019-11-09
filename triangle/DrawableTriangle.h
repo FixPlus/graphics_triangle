@@ -13,5 +13,7 @@ public:
 
 	void update(float dt); //updates time-dependant values (including vertices)
 	void setIt(vertIterator iter);
+	void setColor(glm::vec3 newColor);
+
 	VulkanExample::Vertex& vertex(int id) const{ return vertices[id % 3];};
 };

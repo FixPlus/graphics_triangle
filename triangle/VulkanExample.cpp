@@ -243,7 +243,10 @@ void VulkanExample::draw()
 //	updateUniformBuffers();
 
 	// Get next image in the swap chain (back/front buffer)
-	VK_CHECK_RESULT(swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer));
+	if(swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer) != VK_SUCCESS){
+		windowResize();
+		return;
+	}
 
 	// Use a fence to wait until the command buffer has finished execution before using it again
 	VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFences[currentBuffer], VK_TRUE, UINT64_MAX));
@@ -268,7 +271,10 @@ void VulkanExample::draw()
 	// Present the current buffer to the swap chain
 	// Pass the semaphore signaled by the command buffer submission from the submit info as the wait semaphore for swap chain presentation
 	// This ensures that the image is not presented to the windowing system until all commands have been submitted
-	/*VK_CHECK_RESULT(*/swapChain.queuePresent(queue, currentBuffer, renderCompleteSemaphore);//); //macros caused assertion fail on window resize
+	if(swapChain.queuePresent(queue, currentBuffer, renderCompleteSemaphore) != VK_SUCCESS){ 
+		windowResize();
+		return;		
+	}
 }
 
 // Prepare vertex and index buffers for an indexed triangle

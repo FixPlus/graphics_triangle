@@ -12,6 +12,14 @@ void DrawableTriangle::update(float dt){
 	rotRoot += velocity * dt;
 
 }
+
+void DrawableTriangle::setColor(glm::vec3 newColor){
+	vertices[0].color = newColor;
+	vertices[1].color = newColor;
+	vertices[2].color = newColor;
+}
+
+
 void DrawableTriangle::setIt(vertIterator iter){
 	vertices = iter;
 }

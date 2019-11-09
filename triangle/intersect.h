@@ -116,7 +116,7 @@ public:
 		return x_interfered;
 	}
 
-	cube_t operator[](int idx) const{
+	cube_t const & operator[](int idx) const{
 		return cubes_[idx];
 	}
 
@@ -130,7 +130,7 @@ polygon_t<float> drawTriToPolygon(DrawableTriangle const &draw_tri){
 	return ret;
 }
 
-void get_intersected(std::vector<DrawableTriangle> const &triangles){
+void get_intersected(std::vector<DrawableTriangle> &triangles){
 
 	std::vector<bool> intersected;
 
@@ -200,9 +200,7 @@ void get_intersected(std::vector<DrawableTriangle> const &triangles){
 
 	for(int i = 0; i < intersected.size(); i++){
 		glm::vec3 color = intersected[i] ? glm::vec3{1.0f, 0.0f, 0.0f} : glm::vec3{0.0f, 1.0f, 0.0f};
-		triangles[i].vertex(0).color = color;
-		triangles[i].vertex(1).color = color;
-		triangles[i].vertex(2).color = color;
+		triangles[i].setColor(color);
 	}
 
 

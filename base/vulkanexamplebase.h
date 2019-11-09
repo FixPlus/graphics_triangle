@@ -65,8 +65,6 @@ private:
 	uint32_t destWidth;
 	uint32_t destHeight;
 	bool resizing = false;
-	// Called if the window is resized and some resources have to be recreatesd
-	void windowResize();
 	void handleMouseMove(int32_t x, int32_t y);
 protected:
 	// Frame counter to display fps
@@ -142,6 +140,9 @@ public:
 
 	/** @brief Encapsulated physical and logical vulkan device */
 	vks::VulkanDevice *vulkanDevice;
+
+	// Called if the window is resized and some resources have to be recreatesd
+	void windowResize();
 
 	/** @brief Example settings that can be changed e.g. by command line arguments */
 	struct Settings {

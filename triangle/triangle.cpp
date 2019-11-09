@@ -2,6 +2,7 @@
 #include "lingeo3D.h"
 #include "intersect.h"
 #include <cstdlib>
+#include <fstream>
 #include "DrawableTriangle.h"
 
 #define __LEVEL4__
@@ -19,7 +20,7 @@ void myHandleEvent(const xcb_generic_event_t *event){
 	switch(event->response_type & 0x7f){
 		case XCB_KEY_PRESS: //Keyboard input
 		{
-			const xcb_key_release_event_t *keyEvent = (const xcb_key_release_event_t *)event;
+			const xcb_key_release_event_t *keyEvent = reinterpret_cast<const xcb_key_release_event_t*>(event);
 		switch (keyEvent->detail)
 			{
 				case KEY_W:
@@ -57,11 +58,11 @@ void myHandleEvent(const xcb_generic_event_t *event){
 
 #ifdef __LEVEL4__ 
 
-void setup_triangles(std::vector<DrawableTriangle> &triangles){
+void setup_triangles(std::vector<DrawableTriangle> &triangles, std::ifstream &input){
 	for(int i = 0; i < triangles.size(); i++){
 		for(int j = 0; j < 3; j++){
 			glm::vec3 pos;
-			std::cin >> pos.x >> pos.y >> pos.z;
+			input >> pos.x >> pos.y >> pos.z;
 			
 			
 			if(!std::cin.good()){
@@ -82,10 +83,10 @@ void setup_triangles(std::vector<DrawableTriangle> &triangles){
 
 		glm::vec3 pnt1, pnt2;
 		
-		std::cin >> pnt1.x >> pnt1.y >> pnt1.z >> pnt2.x >> pnt2.y >> pnt2.z >> triangles[i].rotSpeed;
+		input >> pnt1.x >> pnt1.y >> pnt1.z >> pnt2.x >> pnt2.y >> pnt2.z >> triangles[i].rotSpeed;
 
 		if(!std::cin.good()){
-			std::cout << "Invalid input!\n";
+			std::cout << "Error: Invalid input!\n";
 			return;
 		}
 
@@ -96,14 +97,14 @@ void setup_triangles(std::vector<DrawableTriangle> &triangles){
 
 #else //Level 3
 
-void setup_triangles(std::vector<DrawableTriangle> &triangles){
+void setup_triangles(std::vector<DrawableTriangle> &triangles, std::ifstream &input){
 	for(int i = 0; i < triangles.size(); i++){
 		for(int j = 0; j < 3; j++){
 			glm::vec3 pos;
-			std::cin >> pos.x >> pos.y >> pos.z;
+			input >> pos.x >> pos.y >> pos.z;
 			
-			if(!std::cin.good()){
-				std::cout << "Invalid input!\n";
+			if(!input.good()){
+				std::cout << "Error: Invalid input!\n";
 				return;
 			}
 			triangles[i].vertex(j).position = pos;
@@ -122,41 +123,88 @@ void setup_triangles(std::vector<DrawableTriangle> &triangles){
 
 #endif
 
+
+void print_vec(glm::vec3 const &vec, std::ofstream &output){
+	output << vec.x << " " << vec.y << " " << vec.z << " ";
+}
+
+
+
 int main(int argc, char** argv){
 
+	std::string fullscreen_msg = "-fullscreen";
+	std::string file_msg = "-f";
+	std::string test_mode_msg = "-t"; //if run in test mode program will close after given time passes
+	
+	enum WindowStyle style = WS_WINDOWED;
+	bool got_filename = false;
+	bool test_mode = false;
+	std::string filename;
+
+	for(int i = 1; i < argc; i++){
+		std::string arg = argv[i];
+		if(arg == fullscreen_msg){
+				style = WS_FULLSCREEN;
+		}
+		if(arg == file_msg && i != argc - 1){
+			filename = argv[i + 1];
+			got_filename = true;					
+		}
+		if(arg == test_mode_msg)
+			test_mode = true;
+	}
+
+	if(!got_filename){
+		std::cout << "Error: no input file! Use: -f \"*filepath*/name\" (without .dat)" << std::endl;
+		return 0;
+	}
+
+	std::string dat_filename = filename + ".dat"; //file with triangle data to read
+	std::string ans_filename = filename + ".ans"; //file to write the processed triangle position 
+
+	std::ifstream dat_file{dat_filename};
+
+	if(!dat_file){
+		std::cout << "Error: can't open file: " << dat_filename << std::endl;
+		return 0;
+	}
+
+	std::ofstream ans_file{ans_filename};
+
+	if(!dat_file){
+		std::cout << "Error: can't open file: " << ans_filename << std::endl;
+		return 0;
+	}
+
+
 	int tri_n;
-	std::cin >> tri_n;
-	if(!std::cin.good()){
-		std::cout << "Invalid input!\n";
+	dat_file >> tri_n;
+	if(!dat_file.good()){
+		std::cout << "Error: Invalid input!\n";
 		return 0;
 	}
 
 #ifdef __LEVEL4__ 
 
-	int period_in_sec; // I don't know how to use second variable given by tests. Is it overall executing time or peiod or something else?
-	std::cin >> period_in_sec;
+	int period_in_sec;
+	dat_file >> period_in_sec;
 
 #endif
 
-	std::string fullscreen_msg = "-fullscreen";
-	
-	enum WindowStyle style = WS_WINDOWED;
-
-	for(int i = 1; i < argc; i++){
-		std::string arg = argv[i];
-		if(arg == fullscreen_msg)
-			style = WS_FULLSCREEN;
-	}
 
 	drawer = new Drawer(style, &myHandleEvent, "Intersected triangles");
 
+	if(test_mode)
+		std::cout << "Starting rendering loop using triangle data from " << dat_filename << std::endl << "Duration time: " << period_in_sec << std::endl; 
+
 	float deltaTime = 0.0f;
+	float overallTime = 0.0f;
 
 	triangles.resize(tri_n);
 
 	drawer->connect(triangles.begin(), triangles.end()); //connecting the memory that is copied to GPU in drawer->draw()  to DrawableTriangles
 
-	setup_triangles(triangles); //reads from file triangle information 
+	setup_triangles(triangles, dat_file); //reads from file triangle information 
 
 
 	//Drawing loop starts here
@@ -166,7 +214,7 @@ int main(int argc, char** argv){
 		auto tStart = std::chrono::high_resolution_clock::now();
 
 		drawer->draw(); // renders the connected DrawableTriangles
-		drawer->handleEvents();
+		drawer->handleEvents(); 
 
 #ifdef __LEVEL4__ 
 
@@ -193,7 +241,19 @@ int main(int argc, char** argv){
 		tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
 		
 		deltaTime = tDiff / 1000.0f; // time of current cycle turn in seconds
-
+		overallTime += deltaTime;
+		
+		if(test_mode && overallTime >= static_cast<float>(period_in_sec)){ //saving triangle positions to the file at exact momemnt (period_in_sec)
+			for(int i = 0; i < tri_n; i++){
+				print_vec(triangles[i].vertex(0).position, ans_file);
+				print_vec(triangles[i].vertex(1).position, ans_file);
+				print_vec(triangles[i].vertex(2).position, ans_file);
+				ans_file << std::endl;
+			}
+			std::cout << "Test finished, data saved. Location: " << ans_filename << std::endl;
+			break;
+		}
+		
 	}
 
 	

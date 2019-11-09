@@ -8,12 +8,12 @@
 enum WindowStyle{WS_WINDOWED, WS_FULLSCREEN};
 
 
-class Drawer 
+class Drawer: public VulkanExample 
 {
 
 	typedef void (*CHEFR)(const xcb_generic_event_t *event); //typedefed pointer to handleEvent function 
 
-	VulkanExample* APIManager = nullptr;    //Contains VulkanExample instance by address 
+//	VulkanExample* APIManager = nullptr;    //Contains VulkanExample instance by address 
 	CHEFR customHandleEvent;                //used to have a possibility to handle events out of Drawer class
 
 public:
@@ -22,26 +22,25 @@ public:
 
 	Drawer(Drawer const &rhs) = delete;
 
-	~Drawer(); //deletes APIManager created by initManager
 
-	void draw() const;   //copies the vertices info to GPU memory and renders frame
+	void draw();   //copies the vertices info to GPU memory and renders frame
 
 	template<typename It> //any random access iterator
-	void connect(It begin, It end) const{
-		APIManager->prepared = false;
-		APIManager->prepare((end - begin) * 3);
+	void connect(It begin, It end) {
+		prepared = false;
+		prepare((end - begin) * 3);
 
-		auto vertIt = APIManager->localVertices.begin();
+		auto vertIt = localVertices.begin();
 
 		for(; begin < end; begin++, vertIt += 3)
 			begin[0].setIt(vertIt);
 	} //connects the triangles iterators to localVertices buffer
 
-	bool shouldQuit() const { return APIManager->quit;}; //return the APIManager state quit
+	bool shouldQuit() const { return quit;}; //return the APIManager state quit
 
-	void handleEvents() const; //handles the xcb window events
+	void handleEvents(); //handles the xcb window events
 
-	void handleEvent(const xcb_generic_event_t *event) const; //handles current xcb event
+	void localHandleEvent(const xcb_generic_event_t *event); //handles current xcb event
 
 	Drawer& operator=(Drawer const &rhs) = delete;
 

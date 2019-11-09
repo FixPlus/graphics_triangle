@@ -6,13 +6,15 @@ Triangle Intersection demonstration
 
 ======================================
 
-To build the binary executive use make
+To build the binary executive use make / make all
 
 To build this you need to have xcb lib and vulkan
 lib installed (or use the one in ./libs/vulkan)
 
-To run test file use ./InterAndDraw <tests/filename.dat
-
+To open test file use ./InterAndDraw -f tests4/filename
+To run in test mode use ./InterAndDraw -t *other arguements*
+To generate tests use ./test_gen n_tri n_sec test4/filename
+You can generate and run all tests automatically: make gen_run_analyze
 
 To control camera use the mouse:
 	left mbtn + drag to rotate camera
@@ -21,7 +23,7 @@ To control camera use the mouse:
 
 
 This project uses code from Vulkan Example Collection
-by SaschWillems: https://github.com/SaschaWillems/Vulkan
+by SaschaWillems: https://github.com/SaschaWillems/Vulkan
 
 That is liciensed under:
 
