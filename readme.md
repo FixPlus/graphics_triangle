@@ -12,8 +12,11 @@ To build this you need to have xcb lib and vulkan
 lib installed (or use the one in ./libs/vulkan)
 
 To open test file use ./InterAndDraw -f tests4/filename
+
 To run in test mode use ./InterAndDraw -t *other arguements*
+
 To generate tests use ./test_gen n_tri n_sec test4/filename
+
 You can generate and run all tests automatically: make gen_run_analyze
 
 To control camera use the mouse:
