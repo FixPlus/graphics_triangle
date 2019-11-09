@@ -16,7 +16,7 @@ $(EXECUTABLE): $(OBJECTS)
 test_gen: test_generator/test_generator.o
 	g++ $(CFLAGS) test_generator/test_generator.o -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
 
-test_analyzer: test_generator/test_generator.o
+test_analyzer: test_generator/test_analyzer.o
 	g++ $(CFLAGS) test_generator/test_analyzer.o -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
 
 .cpp.o:
