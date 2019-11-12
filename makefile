@@ -16,7 +16,7 @@ $(EXECUTABLE): $(OBJECTS)
 test_gen: test_generator/test_generator.o
 	g++ $(CFLAGS) test_generator/test_generator.o -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
 
-test_analyzer: test_generator/test_generator.o
+test_analyzer: test_generator/test_analyzer.o
 	g++ $(CFLAGS) test_generator/test_analyzer.o -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
 
 .cpp.o:
@@ -35,12 +35,12 @@ generate_tests:
 	./test_gen 500 10 $(TEST_DIRECTORY)/6
 
 run_tests:
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/1
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/2
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/3
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/4
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/5
-	./InterAndDraw -t -f $(TEST_DIRECTORY)/6
+	./InterAndDraw <$(TEST_DIRECTORY)/1.dat >$(TEST_DIRECTORY)/1.ans
+	./InterAndDraw <$(TEST_DIRECTORY)/2.dat >$(TEST_DIRECTORY)/2.ans
+	./InterAndDraw <$(TEST_DIRECTORY)/3.dat >$(TEST_DIRECTORY)/3.ans
+	./InterAndDraw <$(TEST_DIRECTORY)/4.dat >$(TEST_DIRECTORY)/4.ans
+	./InterAndDraw <$(TEST_DIRECTORY)/5.dat >$(TEST_DIRECTORY)/5.ans
+	./InterAndDraw <$(TEST_DIRECTORY)/6.dat >$(TEST_DIRECTORY)/6.ans
 
 analyze_tests:
 	./test_analyzer $(TEST_DIRECTORY)/1

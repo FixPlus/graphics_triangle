@@ -1,5 +1,7 @@
 #include "drawer.h"
 
+using namespace triGraphic;
+
 Drawer::Drawer(enum WindowStyle style, CHEFR che, std::string windowName, uint32_t width, uint32_t height, int32_t init_camera_rot_x, int32_t init_camera_rot_y): VulkanExample(windowName), customHandleEvent(che){
 
 //	APIManager = new VulkanExample(windowName);
@@ -19,16 +21,12 @@ Drawer::Drawer(enum WindowStyle style, CHEFR che, std::string windowName, uint32
 }
 
 
-void Drawer::draw() {
-	updateUniformBuffers();
-	renderLoop();
-}
-
 void Drawer::handleEvents(){
 	xcb_generic_event_t *event;
 	while ((event = xcb_poll_for_event(connection)))
 	{
 		handleEvent(event);
+		localHandleEvent(event);
 		free(event);
 	}
 

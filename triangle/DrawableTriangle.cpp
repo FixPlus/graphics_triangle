@@ -1,5 +1,6 @@
 #include "DrawableTriangle.h"
 
+using namespace triGraphic;
 
 void DrawableTriangle::update(float dt){
 	glm::mat4 rotateMat = glm::rotate(glm::mat4(1.0f) , glm::radians(rotSpeed * dt), rotAxis);
@@ -17,9 +18,4 @@ void DrawableTriangle::setColor(glm::vec3 newColor){
 	vertices[0].color = newColor;
 	vertices[1].color = newColor;
 	vertices[2].color = newColor;
-}
-
-
-void DrawableTriangle::setIt(vertIterator iter){
-	vertices = iter;
 }

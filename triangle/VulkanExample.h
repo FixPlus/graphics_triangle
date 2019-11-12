@@ -202,13 +202,13 @@ public:
 
 	void prepare(int n_verts);
 
-	virtual void render();	
+	void render() override;	
 
 //MODIFIED: using mouse to control camera
 	
-	virtual void mouseMoved(double x, double y, bool &handled);
+	void mouseMoved(double x, double y, bool &handled) override;
 
-	virtual void viewChanged();
+	void viewChanged() override;
 
 };
 

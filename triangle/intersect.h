@@ -12,12 +12,12 @@ using namespace lingeo3D;
 
 class sorted_cubes;
 
-class cube_t{ //3d cube
+class cube_t final{ //3d cube
 
 	float x1, y1, z1, x2, y2, z2;
 
 public:
-	cube_t(DrawableTriangle polygon = DrawableTriangle{}, float cube_size = 0.0){
+	cube_t(triGraphic::DrawableTriangle polygon = triGraphic::DrawableTriangle{}, float cube_size = 0.0){
 		float min_x = -1.0, min_y = -1.0, min_z = -1.0, max_x = 0.0, max_y = 0.0, max_z = 0.0;
 		for(int i = 0; i < 3; i++){
 			VulkanExample::Vertex pnt = polygon.vertex(i);
@@ -59,13 +59,13 @@ public:
 };
 
 
-class sorted_cubes{
+class sorted_cubes final{
 	std::vector<cube_t> cubes_; //holds cubes of the same size that holding their triangles inside
 
 	std::vector<int> x_sorted_cubes; //holds indexes of cubes_ sorted by x coordinate
 
 public:
-	sorted_cubes(std::vector<DrawableTriangle> const &polys){
+	sorted_cubes(std::vector<triGraphic::DrawableTriangle> const &polys){
 
 		float x_size_max = 0.0, y_size_max = 0.0, z_size_max = 0.0;
 		for(int i = 0; i < polys.size(); i++){
@@ -122,7 +122,7 @@ public:
 
 };
 
-polygon_t<float> drawTriToPolygon(DrawableTriangle const &draw_tri){
+polygon_t<float> drawTriToPolygon(triGraphic::DrawableTriangle const &draw_tri){
 	polygon_t<float> ret;
 	ret.vertices.push_back(point_t<float>{draw_tri.vertex(0).position.x, draw_tri.vertex(0).position.y, draw_tri.vertex(0).position.z});
 	ret.vertices.push_back(point_t<float>{draw_tri.vertex(1).position.x, draw_tri.vertex(1).position.y, draw_tri.vertex(1).position.z});
@@ -130,7 +130,7 @@ polygon_t<float> drawTriToPolygon(DrawableTriangle const &draw_tri){
 	return ret;
 }
 
-void get_intersected(std::vector<DrawableTriangle> &triangles){
+void get_intersected(std::vector<triGraphic::DrawableTriangle> &triangles){
 
 	std::vector<bool> intersected;
 

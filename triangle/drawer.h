@@ -4,11 +4,12 @@
 
 // Drawer is used to operate with VulkanExample class by creating, initializing, preparing, rendering, handling events and deleting
 
+namespace triGraphic{
 
 enum WindowStyle{WS_WINDOWED, WS_FULLSCREEN};
 
 
-class Drawer: public VulkanExample 
+class Drawer final: public VulkanExample
 {
 
 	typedef void (*CHEFR)(const xcb_generic_event_t *event); //typedefed pointer to handleEvent function 
@@ -23,7 +24,10 @@ public:
 	Drawer(Drawer const &rhs) = delete;
 
 
-	void draw();   //copies the vertices info to GPU memory and renders frame
+	void draw()	{   //copies the vertices info to GPU memory and renders frame
+		updateUniformBuffers();
+		renderLoop();
+	};
 
 	template<typename It> //any random access iterator
 	void connect(It begin, It end) {
@@ -47,3 +51,4 @@ public:
 
 };
 
+};

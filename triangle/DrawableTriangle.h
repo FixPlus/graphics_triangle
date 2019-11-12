@@ -2,6 +2,9 @@
 #include "VulkanExample.h"
 
 using vertIterator = std::vector<VulkanExample::Vertex>::iterator;
+
+namespace triGraphic {
+
 class DrawableTriangle{
 	vertIterator vertices;
 public:	
@@ -12,8 +15,12 @@ public:
 					 glm::vec3 rotR = glm::vec3{0.0f, 0.0f, 0.0f}, float rotSpd = 0.0f) : velocity(vel), rotAxis(rotAx), rotRoot(rotR), rotSpeed(rotSpd){};
 
 	void update(float dt); //updates time-dependant values (including vertices)
-	void setIt(vertIterator iter);
+	void setIt(vertIterator iter){ vertices = iter; };
 	void setColor(glm::vec3 newColor);
 
 	VulkanExample::Vertex& vertex(int id) const{ return vertices[id % 3];};
+
+	virtual ~DrawableTriangle(){};
+};
+
 };

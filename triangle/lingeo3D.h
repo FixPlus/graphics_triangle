@@ -48,6 +48,8 @@ namespace lingeo3D{
 			return ret;	
 		}
 
+		virtual ~point_t(){};
+
 //		point_t& operator=(const point_t &pnt);
 	};
 template<typename T>
@@ -76,6 +78,7 @@ template<typename T>
 		point_t<T> get_dir() const{
 			return dir_;
 		}
+		virtual ~line_t(){};
 	};
 template<typename T>
 	struct plane_t {     // ax + by + cz + d = 0
@@ -101,6 +104,7 @@ template<typename T>
 
 		bool valid() const;
 
+		virtual ~plane_t(){};
 	};
 
 template<typename T>
@@ -121,6 +125,7 @@ template<typename T>
 		bool intersect(polygon_t<T> const & another) const;                                      // checks if polygon intersects with "another" polygon
 		bool holding(point_t<T> const & vert) const;											  // tells if this polygon is holding the vert as one of it's vertices
 		void add(point_t<T> const &vert);														  // adds the vert to the tail of vertices if its not in vertices already
+		virtual ~polygon_t(){};
 	};
 
 
