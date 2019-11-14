@@ -217,6 +217,7 @@ int main(int argc, char** argv){
 		overallTime += deltaTime;
 		
 		if(!data_saved && overallTime >= static_cast<float>(period_in_sec)){ //saving triangle positions to the file at exact momemnt (period_in_sec)
+			drawer->resize_vertices();
 			for(int i = 0; i < tri_n; i++){
 				print_vec(triangles[i].vertex(0).position, std::cout);
 				print_vec(triangles[i].vertex(1).position, std::cout);

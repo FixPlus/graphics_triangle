@@ -165,7 +165,7 @@ public:
 
 	// Prepare vertex and index buffers for an indexed triangle
 	// Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-	void prepareVertices(bool s, int n_verts);
+	void prepareVertices(bool s);
 
 	void setupDescriptorPool();
 
@@ -200,7 +200,8 @@ public:
 
 	void updateUniformBuffers(); //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 
-	void prepare(int n_verts);
+	void prepare();
+	void resize_vertices();
 
 	void render() override;	
 
@@ -209,7 +210,7 @@ public:
 	void mouseMoved(double x, double y, bool &handled) override;
 
 	void viewChanged() override;
-
+	void vulkanClear();
 };
 
 // OS specific macros for the example main entry points

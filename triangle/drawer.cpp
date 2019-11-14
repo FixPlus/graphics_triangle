@@ -18,6 +18,7 @@ Drawer::Drawer(enum WindowStyle style, CHEFR che, std::string windowName, uint32
 
 	initVulkan();
 	setupWindow();
+	prepare();
 }
 
 

@@ -27,6 +27,30 @@ VulkanExample::VulkanExample(std::string windowName) : VulkanExampleBase(ENABLE_
 	// Values not set here are initialized in the base class constructor
 }
 
+void VulkanExample::vulkanClear(){
+	vkDestroyPipeline(device, pipeline, nullptr);
+
+	vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+	vkDestroyBuffer(device, vertices.buffer, nullptr);
+	vkFreeMemory(device, vertices.memory, nullptr);
+
+	vkDestroyBuffer(device, indices.buffer, nullptr);
+	vkFreeMemory(device, indices.memory, nullptr);
+
+	vkDestroyBuffer(device, uniformBufferVS.buffer, nullptr);
+	vkFreeMemory(device, uniformBufferVS.memory, nullptr);
+
+	vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
+	vkDestroySemaphore(device, renderCompleteSemaphore, nullptr);
+
+	for (auto& fence : waitFences)
+	{
+		vkDestroyFence(device, fence, nullptr);
+	}	
+}
+
 VulkanExample::~VulkanExample()
 {
 	// Clean up used Vulkan resources 
@@ -279,7 +303,7 @@ void VulkanExample::draw()
 
 // Prepare vertex and index buffers for an indexed triangle
 // Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-void VulkanExample::prepareVertices(bool useStagingBuffers, int n_verts) //MODIFIED: now it takes a triangle data to prepare vertices
+void VulkanExample::prepareVertices(bool useStagingBuffers) //MODIFIED: now it takes a triangle data to prepare vertices
 {
 	// A note on memory management in Vulkan in general:
 	//	This is a very complex topic and while it's fine for an example application to to small individual memory allocations that is not
@@ -287,17 +311,9 @@ void VulkanExample::prepareVertices(bool useStagingBuffers, int n_verts) //MODIF
 
 	// Setup vertices
 
-	localVertices.clear();
-	localIndices.clear();
-
-	Vertex example = Vertex{};
-	localVertices.resize(n_verts, example);
-
-	for(int i = 0; i < n_verts; i++)
-		localIndices.push_back(i);
-
 
 	localVerticesSize = static_cast<uint32_t>(localVertices.size()) * sizeof(Vertex);
+
 
 	indices.count = static_cast<uint32_t>(localIndices.size());
 	localIndicesSize = indices.count * sizeof(uint32_t);
@@ -998,20 +1014,29 @@ void VulkanExample::updateUniformBuffers() //MODIFIED: changed the order of matr
 	// Unmap after data has been copied
 	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
 	vkUnmapMemory(device, uniformBufferVS.memory);
-
-	VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, sizeof(localVerticesSize), 0, (void **)&pData));
-	memcpy(pData, localVertices.data(), localVerticesSize);
-	// Unmap after data has been copied
-	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
-	vkUnmapMemory(device, vertices.memory);
-
+	if(prepared){
+		VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, sizeof(localVerticesSize), 0, (void **)&pData));
+		memcpy(pData, localVertices.data(), localVerticesSize);
+		// Unmap after data has been copied
+		// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
+		vkUnmapMemory(device, vertices.memory);
+	}
 }
 
-void VulkanExample::prepare(int n_verts)
+void VulkanExample::resize_vertices(){
+	if(localVerticesSize != localVertices.size()){
+		prepared = false;
+		vulkanClear();
+		prepare();
+		prepared = true;
+	}
+}
+
+void VulkanExample::prepare()
 {
 	VulkanExampleBase::prepare();
 	prepareSynchronizationPrimitives();
-	prepareVertices(false, n_verts);
+	prepareVertices(false);
 	prepareUniformBuffers();
 	setupDescriptorSetLayout();
 	preparePipelines();
