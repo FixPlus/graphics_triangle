@@ -72,10 +72,10 @@ analyze_tests:
 	./test_analyzer $(TEST_DIRECTORY)/5
 	./test_analyzer $(TEST_DIRECTORY)/6
 
-build_all: $(EXECUTABLE) test_gen test_analyzer
+build_all: $(EXECUTABLE1) $(EXECUTABLE2) test_gen test_analyzer
 
 
 
 
 clean:
-	rm -f $(OBJECTS_TO_CLEAN) *.o $(EXECUTABLE) 
+	rm -f $(OBJECTS_TO_CLEAN) *.o $(EXECUTABLE1) $(EXECUTABLE2) 
