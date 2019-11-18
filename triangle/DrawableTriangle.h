@@ -1,22 +1,24 @@
 #pragma once
 #include "VulkanExample.h"
+#include "Rotatible.h"
 
 using vertIterator = std::vector<VulkanExample::Vertex>::iterator;
 
 namespace triGraphic {
 
-class DrawableTriangle{
+class DrawableTriangle {
 	vertIterator vertices;
 public:	
-	glm::vec3 velocity, rotAxis, rotRoot;
-	float rotSpeed;
 
-	explicit DrawableTriangle(glm::vec3 vel = glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3 rotAx = glm::vec3{1.0f, 1.0f, 1.0f},
-					 glm::vec3 rotR = glm::vec3{0.0f, 0.0f, 0.0f}, float rotSpd = 0.0f) : velocity(vel), rotAxis(rotAx), rotRoot(rotR), rotSpeed(rotSpd){};
+	explicit DrawableTriangle() {};
 
-	void update(float dt); //updates time-dependant values (including vertices)
 	void setIt(vertIterator iter){ vertices = iter; };
-	void setColor(glm::vec3 newColor);
+	
+	void setColor(glm::vec3 newColor){
+		vertices[0].color = newColor;
+		vertices[1].color = newColor;
+		vertices[2].color = newColor;
+	};
 
 	VulkanExample::Vertex& vertex(int id) const{ return vertices[id % 3];};
 

@@ -2,16 +2,38 @@
 CFLAGS = -std=c++17 -I./external -I./external/glm -I./base
 SOURCE_DIR = triangle
 LDFLAGS = -L./libs/vulkan -lvulkan -L./base -lxcb
+
 DEFS = -D VK_USE_PLATFORM_XCB_KHR
-SOURCES = base/vulkanexamplebase.cpp base/VulkanTools.cpp base/VulkanDebug.cpp $(SOURCE_DIR)/triangle.cpp  $(SOURCE_DIR)/drawer.cpp $(SOURCE_DIR)/DrawableTriangle.cpp  $(SOURCE_DIR)/VulkanExample.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
-OBJECTS_TO_CLEAN = $(OBJECTS) test_generator/test_generator.o test_generator/test_analyzer.o
+
+BASE_SOURCES =   base/vulkanexamplebase.cpp base/VulkanTools.cpp base/VulkanDebug.cpp
+MY_SOURCES = $(SOURCE_DIR)/drawer.cpp $(SOURCE_DIR)/VulkanExample.cpp
+
+SOURCES = $(BASE_SOURCES) $(MY_SOURCES)
+
+SOURCES1 = $(SOURCES) $(SOURCE_DIR)/triangle.cpp
+SOURCES2 = $(SOURCES) $(SOURCE_DIR)/triangle_mesh.cpp
+
+OBJECTS1 = $(SOURCES1:.cpp=.o)
+OBJECTS2 = $(SOURCES2:.cpp=.o)
+
+
+OBJECTS_TO_CLEAN = $(OBJECTS1) $(OBJECTS2) test_generator/test_generator.o test_generator/test_analyzer.o
+
 TEST_DIRECTORY = ./tests4
-EXECUTABLE = InterAndDraw
+
+EXECUTABLE1 = InterAndDraw
+EXECUTABLE2 = TriangleMesh
 
 
-$(EXECUTABLE): $(OBJECTS)
-	g++ $(CFLAGS) $(OBJECTS)  -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
+
+
+$(EXECUTABLE1): $(OBJECTS1)
+	g++ $(CFLAGS) $(OBJECTS1)  -o $@ $(LDFLAGS) $(CFLAGS) $(DEFS)
+
+$(EXECUTABLE2): $(OBJECTS2)
+	g++ $(CFLAGS) $(OBJECTS2)  -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
+
+include .depend
 
 test_gen: test_generator/test_generator.o
 	g++ $(CFLAGS) test_generator/test_generator.o -o $@ $(LDFLAGS) $(DEFINES) $(DEFS)
@@ -51,6 +73,9 @@ analyze_tests:
 	./test_analyzer $(TEST_DIRECTORY)/6
 
 build_all: $(EXECUTABLE) test_gen test_analyzer
+
+
+
 
 clean:
 	rm -f $(OBJECTS_TO_CLEAN) *.o $(EXECUTABLE) 

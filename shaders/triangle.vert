@@ -7,13 +7,14 @@ layout (location = 2) in vec3 inNormal;
 layout (binding = 0) uniform UBO 
 {
 	mat4 projectionMatrix;
-	mat4 modelMatrix;
-	mat4 viewMatrix;
+	vec4 lightDirection;
+	vec4 viewPos;
 } ubo;
 
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec3 outNormal;
 layout (location = 2) out vec3 outTrace;
+layout (location = 3) out vec3 outViewTrace;
 
 out gl_PerVertex 
 {
@@ -24,20 +25,15 @@ out gl_PerVertex
 
 void main() 
 {
-	vec3 world_position = vec3(ubo.viewMatrix * ubo.modelMatrix * vec4(inPos.xyz, 1.0));
-	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * ubo.modelMatrix * vec4(inPos.xyz, 1.0);
-	vec3 light_pos = vec3(0.0, 0.0, 0.0);
-	vec3 trace = world_position - light_pos;
-	vec3 norm_trace = normalize(trace);
-	vec3 normal = normalize(mat3(inverse(transpose(ubo.viewMatrix * ubo.modelMatrix))) * inNormal);
+	gl_Position = ubo.projectionMatrix * vec4(inPos.xyz, 1.0);
 
-	// As closer the normal vector is to trace and as closer to light_source is vert as brighter it will be
+	vec3 trace = vec3(ubo.lightDirection);
+//	vec3 norm_trace = normalize(trace);
+	vec3 normal = normalize(inNormal);
 
-//	float enlighted = max(abs(dot(normal, norm_trace))  * (1000.0 - length(trace)) / 1000.00 , 0.0);
 
-	outNormal = normal;
+	outNormal = normalize(inNormal);
 	outTrace = trace;
-
-//	outColor = inColor * (enlighted * 0.7 + 0.1);
+	outViewTrace = ubo.viewPos.xyz - inPos.xyz;
 	outColor = inColor;
 }

@@ -32,27 +32,14 @@ public:
 	template<typename It> //any random access iterator
 	void connect(It begin, It end) {
 		prepared = false;
-		
-		localVertices.clear();
-
-		Vertex example = Vertex{};
-
-		localVertices.resize((end - begin) * 3, example);
-	
-		localIndices.clear();
-		int n_verts = localVertices.size();
-		
-		for(int i = 0; i < n_verts; i++)
-			localIndices.push_back(i);
-		clearVulkan();
-		prepare();
+		prepare((end - begin) * 3);
 
 		auto vertIt = localVertices.begin();
 
 		for(; begin < end; begin++, vertIt += 3)
 			begin[0].setIt(vertIt);
 	} //connects the triangles iterators to localVertices buffer
-	
+
 	bool shouldQuit() const { return quit;}; //return the APIManager state quit
 
 	void handleEvents(); //handles the xcb window events

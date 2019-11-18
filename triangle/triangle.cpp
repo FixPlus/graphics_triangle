@@ -5,7 +5,7 @@
 #include <fstream>
 #include "DrawableTriangle.h"
 
-#define __LEVEL4__
+//#define __LEVEL4__
 
 using namespace lingeo3D;
 using namespace triGraphic;
@@ -16,7 +16,7 @@ bool paused = false, reversed = false;
 float playSpeed = 1.0f;
 
 void myHandleEvent(const xcb_generic_event_t *event){
-	static int counter = 1;
+	static int counter = 0;
 	switch(event->response_type & 0x7f){
 		case XCB_KEY_PRESS: //Keyboard input
 		{
@@ -40,6 +40,12 @@ void myHandleEvent(const xcb_generic_event_t *event){
 				case KEY_A:
 					break;
 				case KEY_D:
+					get_intersected(triangles);
+					triangles[counter % triangles.size()].vertex(0).color = {0.0f, 0.0f, 1.0f};
+					triangles[counter % triangles.size()].vertex(1).color = {0.0f, 0.0f, 1.0f};
+					triangles[counter % triangles.size()].vertex(2).color = {0.0f, 0.0f, 1.0f};
+					std::cout << (counter % triangles.size()) << std::endl;
+					counter++;
 					break;
 				case KEY_R:
 					reversed = !reversed;
@@ -216,8 +222,7 @@ int main(int argc, char** argv){
 		deltaTime = tDiff / 1000.0f; // time of current cycle turn in seconds
 		overallTime += deltaTime;
 		
-		if(!data_saved && overallTime >= static_cast<float>(period_in_sec)){ //saving triangle positions to the file at exact momemnt (period_in_sec)
-			drawer->resize_vertices();
+/*		if(!data_saved && overallTime >= static_cast<float>(period_in_sec)){ //saving triangle positions to the file at exact momemnt (period_in_sec)
 			for(int i = 0; i < tri_n; i++){
 				print_vec(triangles[i].vertex(0).position, std::cout);
 				print_vec(triangles[i].vertex(1).position, std::cout);
@@ -226,7 +231,7 @@ int main(int argc, char** argv){
 			}
 			data_saved = true;
 		}
-		
+		*/
 	}
 
 	

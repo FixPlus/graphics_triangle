@@ -25,13 +25,23 @@ namespace lingeo3D{
 
 		T scalar_prod(point_t<T> const &pnt) const;
 
-		T distance(point_t<T> const &pnt) const;
+		T distance(point_t<T> const &pnt = point_t<T>{0.0f, 0.0f, 0.0f}) const;
 		
 		bool operator==(point_t<T> const &pnt) const{
 			return (std::abs(x_ - pnt.x_) < flt_tolerance && std::abs(y_ - pnt.y_) < flt_tolerance && std::abs(z_ - pnt.z_) < flt_tolerance) ? true : false;
 		}
 		bool operator!=(point_t<T> const &pnt) const{
 			return !operator==(pnt);
+		}
+
+		point_t<T>& operator+=(point_t const &another){
+			x_ += another.x_; y_ += another.y_; z_ += another.z_;
+			return *this;
+		}
+
+		point_t<T>& operator-=(point_t const &another){
+			x_ -= another.x_; y_ -= another.y_; z_ -= another.z_;
+			return *this;
 		}
 
 		point_t<T> operator-(point_t<T> const &another) const{
@@ -47,6 +57,15 @@ namespace lingeo3D{
 			point_t<T> ret(x_ * num, y_ * num, z_ * num);
 			return ret;	
 		}
+
+		point_t<T> normalize(){
+			T module = distance(point_t<T>{0.0, 0.0, 0.0});
+			x_ /= module;
+			y_ /= module;
+			z_ /= module;
+			return *this;
+		}
+
 
 		virtual ~point_t(){};
 
@@ -125,6 +144,7 @@ template<typename T>
 		bool intersect(polygon_t<T> const & another) const;                                      // checks if polygon intersects with "another" polygon
 		bool holding(point_t<T> const & vert) const;											  // tells if this polygon is holding the vert as one of it's vertices
 		void add(point_t<T> const &vert);														  // adds the vert to the tail of vertices if its not in vertices already
+		plane_t<T> get_plane();
 		virtual ~polygon_t(){};
 	};
 
@@ -416,7 +436,10 @@ bool polygon_t<T>::holding(point_t<T> const & vert) const{
 			return true;
 	return false;	
 }
-
+template<typename T>
+plane_t<T> polygon_t<T>::get_plane(){
+	return plane_t<T>{vertices[0], vertices[1], vertices[2]};
+}
 
 template<typename T>
 void polygon_t<T>::add(point_t<T> const &vert){

@@ -27,30 +27,6 @@ VulkanExample::VulkanExample(std::string windowName) : VulkanExampleBase(ENABLE_
 	// Values not set here are initialized in the base class constructor
 }
 
-void VulkanExample::vulkanClear(){
-	vkDestroyPipeline(device, pipeline, nullptr);
-
-	vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
-	vkDestroyBuffer(device, vertices.buffer, nullptr);
-	vkFreeMemory(device, vertices.memory, nullptr);
-
-	vkDestroyBuffer(device, indices.buffer, nullptr);
-	vkFreeMemory(device, indices.memory, nullptr);
-
-	vkDestroyBuffer(device, uniformBufferVS.buffer, nullptr);
-	vkFreeMemory(device, uniformBufferVS.memory, nullptr);
-
-	vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
-	vkDestroySemaphore(device, renderCompleteSemaphore, nullptr);
-
-	for (auto& fence : waitFences)
-	{
-		vkDestroyFence(device, fence, nullptr);
-	}	
-}
-
 VulkanExample::~VulkanExample()
 {
 	// Clean up used Vulkan resources 
@@ -303,7 +279,7 @@ void VulkanExample::draw()
 
 // Prepare vertex and index buffers for an indexed triangle
 // Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-void VulkanExample::prepareVertices(bool useStagingBuffers) //MODIFIED: now it takes a triangle data to prepare vertices
+void VulkanExample::prepareVertices(bool useStagingBuffers, int n_verts) //MODIFIED: now it takes a triangle data to prepare vertices
 {
 	// A note on memory management in Vulkan in general:
 	//	This is a very complex topic and while it's fine for an example application to to small individual memory allocations that is not
@@ -311,9 +287,17 @@ void VulkanExample::prepareVertices(bool useStagingBuffers) //MODIFIED: now it t
 
 	// Setup vertices
 
+	localVertices.clear();
+	localIndices.clear();
+
+	Vertex example = Vertex{};
+	localVertices.resize(n_verts, example);
+
+	for(int i = 0; i < n_verts; i++)
+		localIndices.push_back(i);
+
 
 	localVerticesSize = static_cast<uint32_t>(localVertices.size()) * sizeof(Vertex);
-
 
 	indices.count = static_cast<uint32_t>(localIndices.size());
 	localIndicesSize = indices.count * sizeof(uint32_t);
@@ -984,7 +968,6 @@ void VulkanExample::prepareUniformBuffers()
 	uniformBufferVS.descriptor.buffer = uniformBufferVS.buffer;
 	uniformBufferVS.descriptor.offset = 0;
 	uniformBufferVS.descriptor.range = sizeof(uboVS);
-
 	updateUniformBuffers();
 }
 
@@ -992,17 +975,18 @@ void VulkanExample::prepareUniformBuffers()
 void VulkanExample::updateUniformBuffers() //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 {
 	// Update matrices
-	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 1000.0f);
 //	uboVS.projectionMatrix = glm::ortho(0.0f, 100.f, 0.0f, 100.f, -256.0f, 256.0f);
 
 //		uboVS.viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
-	uboVS.viewMatrix = glm::rotate(glm::mat4(1.0f) , glm::radians( - rotation.x * 0.25f), glm::vec3(1.0f, 0.0f, 0.0f));
-	uboVS.viewMatrix = glm::rotate(uboVS.viewMatrix, glm::radians( - rotation.y * 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
-	uboVS.viewMatrix = glm::rotate(uboVS.viewMatrix, glm::radians( - rotation.z * 0.25f), glm::vec3(0.0f, 0.0f, 1.0f));
-	uboVS.viewMatrix = glm::translate(uboVS.viewMatrix, cameraPos);
+	uboVS.projectionMatrix = glm::rotate(glm::mat4(1.0f) , glm::radians( - rotation.x * 0.25f), glm::vec3(1.0f, 0.0f, 0.0f));
+	uboVS.projectionMatrix = glm::rotate(uboVS.projectionMatrix, glm::radians( - rotation.y * 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
+	uboVS.projectionMatrix = glm::rotate(uboVS.projectionMatrix, glm::radians( - rotation.z * 0.25f), glm::vec3(0.0f, 0.0f, 1.0f));
+	uboVS.projectionMatrix = glm::translate(uboVS.projectionMatrix, cameraPos);
+	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 1000.0f) * uboVS.projectionMatrix;
+	uboVS.viewPos = glm::vec4(-cameraPos, 0.0f);
 
-
-	uboVS.modelMatrix = glm::mat4(1.0f);
+	uboVS.lightDirection = lightDirection;
+//	uboVS.modelMatrix = glm::mat4(1.0f);
 //		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(tri_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
 //		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 //		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -1014,29 +998,21 @@ void VulkanExample::updateUniformBuffers() //MODIFIED: changed the order of matr
 	// Unmap after data has been copied
 	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
 	vkUnmapMemory(device, uniformBufferVS.memory);
-	if(prepared){
-		VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, sizeof(localVerticesSize), 0, (void **)&pData));
-		memcpy(pData, localVertices.data(), localVerticesSize);
-		// Unmap after data has been copied
-		// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
-		vkUnmapMemory(device, vertices.memory);
-	}
+
+
+	VK_CHECK_RESULT(vkMapMemory(device, vertices.memory, 0, sizeof(localVerticesSize), 0, (void **)&pData));
+	memcpy(pData, localVertices.data(), localVerticesSize);
+	// Unmap after data has been copied
+	// Note: Since we requested a host coherent memory type for the uniform buffer, the write is instantly visible to the GPU
+	vkUnmapMemory(device, vertices.memory);
+
 }
 
-void VulkanExample::resize_vertices(){
-	if(localVerticesSize != localVertices.size()){
-		prepared = false;
-		vulkanClear();
-		prepare();
-		prepared = true;
-	}
-}
-
-void VulkanExample::prepare()
+void VulkanExample::prepare(int n_verts)
 {
 	VulkanExampleBase::prepare();
 	prepareSynchronizationPrimitives();
-	prepareVertices(false);
+	prepareVertices(false, n_verts);
 	prepareUniformBuffers();
 	setupDescriptorSetLayout();
 	preparePipelines();

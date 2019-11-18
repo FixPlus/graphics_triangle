@@ -1,3 +1,4 @@
+#pragma once
 #include "lingeo3D.h"
 #include "DrawableTriangle.h"
 #include <iostream>
@@ -130,6 +131,10 @@ polygon_t<float> drawTriToPolygon(triGraphic::DrawableTriangle const &draw_tri){
 	return ret;
 }
 
+void get_intersected(std::vector<polygon_t<float>> &triangles){
+
+}
+
 void get_intersected(std::vector<triGraphic::DrawableTriangle> &triangles){
 
 	std::vector<bool> intersected;
@@ -166,7 +171,7 @@ void get_intersected(std::vector<triGraphic::DrawableTriangle> &triangles){
 #ifdef TRI_LOGGING
 
 		if(i >= check_point){
-			std::cout << (int)((float)check_point/(float)triangles.size() * 100.0) << "% done..." << std::endl;
+			std::cout << static_cast<int>(static_cast<float>(check_point)/static_cast<float>(triangles.size()) * 100.0) << "% done..." << std::endl;
 			check_point += triangles.size() * check_step;
 		}
 

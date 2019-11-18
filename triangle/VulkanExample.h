@@ -94,10 +94,11 @@ public:
 	// Note: You should use data types that align with the GPU in order to avoid manual padding (vec4, mat4)
 	struct {
 		glm::mat4 projectionMatrix;
-		glm::mat4 modelMatrix;
-		glm::mat4 viewMatrix;
+		glm::vec4 lightDirection;
+		glm::vec4 viewPos;
 	} uboVS;
 
+	glm::vec4 lightDirection = {1.0f, 1.0f, 1.0f, 0.0f}; 
 	std::vector<Vertex> localVertices;
 	uint32_t localVerticesSize;
 	std::vector<uint32_t> localIndices;
@@ -165,7 +166,7 @@ public:
 
 	// Prepare vertex and index buffers for an indexed triangle
 	// Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
-	void prepareVertices(bool s);
+	void prepareVertices(bool s, int n_verts);
 
 	void setupDescriptorPool();
 
@@ -200,8 +201,7 @@ public:
 
 	void updateUniformBuffers(); //MODIFIED: changed the order of matrix multiplication to rotate camera, not objects
 
-	void prepare();
-	void resize_vertices();
+	void prepare(int n_verts);
 
 	void render() override;	
 
@@ -210,7 +210,7 @@ public:
 	void mouseMoved(double x, double y, bool &handled) override;
 
 	void viewChanged() override;
-	void vulkanClear();
+
 };
 
 // OS specific macros for the example main entry points

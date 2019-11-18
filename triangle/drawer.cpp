@@ -1,10 +1,8 @@
 #include "drawer.h"
 
-using namespace triGraphic;
+namespace triGraphic{
 
 Drawer::Drawer(enum WindowStyle style, CHEFR che, std::string windowName, uint32_t width, uint32_t height, int32_t init_camera_rot_x, int32_t init_camera_rot_y): VulkanExample(windowName), customHandleEvent(che){
-
-//	APIManager = new VulkanExample(windowName);
 
 	if(style == WS_FULLSCREEN)
 		settings.fullscreen = true;
@@ -18,7 +16,6 @@ Drawer::Drawer(enum WindowStyle style, CHEFR che, std::string windowName, uint32
 
 	initVulkan();
 	setupWindow();
-	prepare();
 }
 
 
@@ -67,3 +64,5 @@ void Drawer::localHandleEvent(const xcb_generic_event_t *event) //handles the xc
 	}	
 
 }
+
+};
