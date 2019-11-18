@@ -125,9 +125,9 @@ public:
 
 polygon_t<float> drawTriToPolygon(triGraphic::DrawableTriangle const &draw_tri){
 	polygon_t<float> ret;
-	ret.vertices.push_back(point_t<float>{draw_tri.vertex(0).position.x, draw_tri.vertex(0).position.y, draw_tri.vertex(0).position.z});
-	ret.vertices.push_back(point_t<float>{draw_tri.vertex(1).position.x, draw_tri.vertex(1).position.y, draw_tri.vertex(1).position.z});
-	ret.vertices.push_back(point_t<float>{draw_tri.vertex(2).position.x, draw_tri.vertex(2).position.y, draw_tri.vertex(2).position.z});
+	ret.vertices.emplace_back(draw_tri.vertex(0).position.x, draw_tri.vertex(0).position.y, draw_tri.vertex(0).position.z);
+	ret.vertices.emplace_back(draw_tri.vertex(1).position.x, draw_tri.vertex(1).position.y, draw_tri.vertex(1).position.z);
+	ret.vertices.emplace_back(draw_tri.vertex(2).position.x, draw_tri.vertex(2).position.y, draw_tri.vertex(2).position.z);
 	return ret;
 }
 
