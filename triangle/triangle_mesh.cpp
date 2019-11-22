@@ -69,18 +69,28 @@ std::vector<MeshBuilder> setup_build_meshes(int n_meshes, int n_pops, float cube
 int main(int argc, char** argv){
 	std::string fullscreen_msg = "-fullscreen";
 	std::string mesh_data_msg = "-md";
+	std::string random_coloring_msg = "-rc";
 
 	enum WindowStyle style = WS_WINDOWED;
+	
 	bool test_mode = false;
+	bool random_coloring = false;
 
 	bool mesh_data_got = false;
 	int n_meshes, n_pops;
 	for(int i = 1; i < argc; i++){
 		std::string arg = argv[i];
+
 		if(arg == fullscreen_msg){
 				style = WS_FULLSCREEN;
 				continue;
 		}
+
+		if(arg == random_coloring_msg){
+				random_coloring = true;
+				continue;
+		}
+
 		if(arg == mesh_data_msg){
 			if(argc < i + 3){
 				std::cout << "Error: not enogh arguements for mesh data!" << std::endl;
@@ -125,23 +135,25 @@ int main(int argc, char** argv){
 	for(int i = 0; i < build_meshes.size(); i++){
 		meshes.emplace_back(build_meshes[i], triIt);
 
-		int pair = std::rand() % 3;
-		float stage = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-		switch(pair){
-			case 0:{ 
-				meshes[i].setColor(glm::vec3(stage, 1.0f - stage, 0.0f));
-				break;
-			}
-			case 1:{
-				meshes[i].setColor(glm::vec3(stage, 0.0f, 1.0f - stage));
-				break;
-			}
-			case 2:{
-				meshes[i].setColor(glm::vec3(0.0f, stage, 1.0f - stage));
-				break;
+		if(random_coloring){
+			int pair = std::rand() % 3;
+			float stage = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+			switch(pair){
+				case 0:{ 
+					meshes[i].setColor(glm::vec3(stage, 1.0f - stage, 0.0f));
+					break;
+				}
+				case 1:{
+					meshes[i].setColor(glm::vec3(stage, 0.0f, 1.0f - stage));
+					break;
+				}
+				case 2:{
+					meshes[i].setColor(glm::vec3(0.0f, stage, 1.0f - stage));
+					break;
+				}
 			}
 		}
-
+		
 		triIt += build_meshes[i].size();
 		glm::vec3 radius = cube_center - meshes[i].center();
 		glm::vec3 rotAxis = {-radius.y / radius.x, 1.0f, 0.0f};
