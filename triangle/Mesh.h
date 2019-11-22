@@ -3,6 +3,12 @@
 #include "MeshBuilder.h"
 #include "Rotatible.h"
 
+
+
+//This class holds a bunch of DrawableTriangle objects that are associated together as "triangle mesh"
+//In order to setup triangles it uses class MeshBuilder
+
+
 using triIterator = std::vector<triGraphic::DrawableTriangle>::iterator;
 
 namespace triGraphic{
@@ -16,6 +22,7 @@ class Mesh : public Rotatible{
 	
 	triIterator triangles_;
 	int size_;
+
 	void setup_triangles(MeshBuilder const &mesh){
 		for(int i = 0; i < mesh.size(); i++){
 			glm::vec3 normal = pntToVec(mesh[i].second);
@@ -35,9 +42,10 @@ class Mesh : public Rotatible{
 
 		}
 	}
+
 public:
 
-	explicit Mesh(MeshBuilder const &mesh, triIterator triangles){
+	Mesh(MeshBuilder const &mesh, triIterator triangles){
 		size_ = mesh.size();
 		triangles_ = triangles;
 		setup_triangles(mesh);
@@ -51,24 +59,35 @@ public:
 		float rotSpeed = 45.0f;
 
 		rotations.clear();
-		rotations.emplace_back(Rotation{{rotRoot, another_ref_point}, rotSpeed});
+		rotations.emplace_back(std::pair{rotRoot, another_ref_point}, rotSpeed);
 	};
 
-	void update(float dt){
+	void update(float dt) { //here I suppose to call all methods that updates all time-dependant states of class 
 		rotate(dt);
+
+//  	move(dt); for example
+
 	}
 
 	int size() const{
 		return size_;
 	}
 
-	int setColor(glm::vec3 newColor){
+	void setColor(glm::vec3 const &newColor) {
 		for(int i = 0; i < size_; i++)
 			triangles_[i].setColor(newColor);
 	}
 
+	void move(glm::vec3 const &shift) {
+		for(int i = 0; i < size_; i++)
+			triangles_[i].move(shift);
+
+		rotations[rotations.size() - 1].first.first += shift;
+
+	}
+
 	glm::vec3 center() const{
-		glm::vec3 ret = {0.0f, 0.0f, 0.0f};
+		glm::vec3 ret{0.0f, 0.0f, 0.0f};
 		for(int i = 0 ; i < size_; i++){
 			glm::vec3 cenOfTri = triangles_[i].vertex(0).position;
 			cenOfTri += triangles_[i].vertex(1).position;
@@ -110,6 +129,10 @@ public:
 			}
 		}
 	}
+
+
+	virtual ~Mesh() {};
+
 };
 
 };

@@ -26,7 +26,6 @@ void myHandleEvent(const xcb_generic_event_t *event){
 					playSpeed += 0.05f;
 					if(playSpeed > 5.0f)
 						playSpeed = 5.0f;
-
 					break;
 				case KEY_S:
 
@@ -111,7 +110,7 @@ int main(int argc, char** argv){
 	
 
 
-	drawer = new Drawer(style, &myHandleEvent, "Triangle mesh");
+	drawer = new Drawer(style, &myHandleEvent, "Triangle meshes");
 	
 	triangles.resize(tri_n);
 
@@ -119,13 +118,30 @@ int main(int argc, char** argv){
 	
 	
 
-
 	float half_cube_size = static_cast<float>(cube_size) / 2.0f;
 	glm::vec3 cube_center = {half_cube_size, half_cube_size, half_cube_size};
 	auto triIt = triangles.begin();
 	
 	for(int i = 0; i < build_meshes.size(); i++){
 		meshes.emplace_back(build_meshes[i], triIt);
+
+		int pair = std::rand() % 3;
+		float stage = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+		switch(pair){
+			case 0:{ 
+				meshes[i].setColor(glm::vec3(stage, 1.0f - stage, 0.0f));
+				break;
+			}
+			case 1:{
+				meshes[i].setColor(glm::vec3(stage, 0.0f, 1.0f - stage));
+				break;
+			}
+			case 2:{
+				meshes[i].setColor(glm::vec3(0.0f, stage, 1.0f - stage));
+				break;
+			}
+		}
+
 		triIt += build_meshes[i].size();
 		glm::vec3 radius = cube_center - meshes[i].center();
 		glm::vec3 rotAxis = {-radius.y / radius.x, 1.0f, 0.0f};
@@ -141,10 +157,12 @@ int main(int argc, char** argv){
 		
 		drawer->draw();
 		drawer->handleEvents();
+
 		if(!paused)
 			for(int i = 0; i < meshes.size(); i++)
 				meshes[i].update(reversed ? deltaTime * playSpeed: -deltaTime * playSpeed); // updates time-dependant members of DrawingTriangle (e.g. position)
 		
+
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
 
@@ -152,7 +170,7 @@ int main(int argc, char** argv){
 		if(timeToSleepMicroSecs < 0)
 			timeToSleepMicroSecs = 0;
 
-		usleep((unsigned int)timeToSleepMicroSecs);
+		usleep(static_cast<unsigned int>(timeToSleepMicroSecs));
 
 		tEnd = std::chrono::high_resolution_clock::now();
 		tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();

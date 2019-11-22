@@ -131,10 +131,6 @@ polygon_t<float> drawTriToPolygon(triGraphic::DrawableTriangle const &draw_tri){
 	return ret;
 }
 
-void get_intersected(std::vector<polygon_t<float>> &triangles){
-
-}
-
 void get_intersected(std::vector<triGraphic::DrawableTriangle> &triangles){
 
 	std::vector<bool> intersected;
@@ -209,5 +205,4 @@ void get_intersected(std::vector<triGraphic::DrawableTriangle> &triangles){
 	}
 
 
-	//return intersected;
 }

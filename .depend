@@ -572,4 +572,4 @@ triangle/triangle_mesh.o: triangle/triangle_mesh.cpp triangle/drawer.h \
  external/glm/glm/gtc/quaternion.hpp external/glm/glm/gtc/quaternion.inl \
  external/glm/glm/gtc/quaternion_simd.inl base/benchmark.hpp \
  triangle/DrawableTriangle.h triangle/Rotatible.h triangle/Mesh.h \
- triangle/MeshBuilder.h triangle/lingeo3D.h triangle/intersect.h
+ triangle/MeshBuilder.h triangle/config.h triangle/lingeo3D.h triangle/intersect.h
