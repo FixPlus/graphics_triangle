@@ -1,6 +1,7 @@
 #include "drawer.h"
 #include "Mesh.h"
 #include <cstdlib>
+#include "config.h"
 #include "intersect.h"
 
 using namespace triGraphic;
@@ -67,9 +68,6 @@ std::vector<MeshBuilder> setup_build_meshes(int n_meshes, int n_pops, float cube
 }
 
 int main(int argc, char** argv){
-	std::string fullscreen_msg = "-fullscreen";
-	std::string mesh_data_msg = "-md";
-	std::string random_coloring_msg = "-rc";
 
 	enum WindowStyle style = WS_WINDOWED;
 	

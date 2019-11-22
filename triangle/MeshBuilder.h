@@ -93,9 +93,9 @@ public:
 
 			bool self_intersect = false;
 			
-			lingeo3D::polygon_t<float> tri_check1 = stretch_triangle(mesh[index],           2, 0.99f);
-			lingeo3D::polygon_t<float> tri_check2 = stretch_triangle(mesh[mesh.size() - 1], 2, 0.99f);
-			lingeo3D::polygon_t<float> tri_check3 = stretch_triangle(mesh[mesh.size() - 2], 2, 0.99f);
+			lingeo3D::polygon_t<float> tri_check1 = stretch_triangle(mesh[index],           2, STRETCH_LEVEL);
+			lingeo3D::polygon_t<float> tri_check2 = stretch_triangle(mesh[mesh.size() - 1], 2, STRETCH_LEVEL);
+			lingeo3D::polygon_t<float> tri_check3 = stretch_triangle(mesh[mesh.size() - 2], 2, STRETCH_LEVEL);
 
 			for(int i = 0; i < mesh.size() - 2; i++){
 				if(i == index)

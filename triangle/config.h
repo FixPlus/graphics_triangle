@@ -18,7 +18,13 @@ static const lingeo3D::point_t<float> INITIAL_TETRA[] = {
 
 static const int INITIAL_SIZE = 7.5f;
 
+static const float STRETCH_LEVEL = 0.99f; // used by MeshBuilder while cheking self-intersections
 
+//Input arguement message constants
+
+static const char fullscreen_msg[] = "-fullscreen";
+static const char mesh_data_msg[] = "-md";
+static const char random_coloring_msg[] = "-rc";
 
 
 

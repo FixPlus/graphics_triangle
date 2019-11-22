@@ -14,7 +14,6 @@ class Drawer final: public VulkanExample
 
 	typedef void (*CHEFR)(const xcb_generic_event_t *event); //typedefed pointer to handleEvent function 
 
-//	VulkanExample* APIManager = nullptr;    //Contains VulkanExample instance by address 
 	CHEFR customHandleEvent;                //used to have a possibility to handle events out of Drawer class
 
 public:
